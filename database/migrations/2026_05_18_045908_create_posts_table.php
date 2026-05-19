@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('slug')->unique();
             $table->text('body');
             $table->foreignId('user_id')->constrained('users');
-            $table->unsignedInteger('is_published')->default(0);
+            $table->unsignedInteger('view_count')->default(0);
             $table->timestamps();
         });
     }
@@ -38,4 +38,4 @@ return new class extends Migration
 //a user cannot be deleted if posts exist
 //prevents accidental data loss
 //forces proper handling of related records
-//“I used restrictOnDelete() to prevent accidental deletion of posts when deleting users. This preserves important data and enforces explicit handling of related records.
+// “I used restrictOnDelete() to prevent accidental deletion of posts when deleting users. This preserves important data and enforces explicit handling of related records.
