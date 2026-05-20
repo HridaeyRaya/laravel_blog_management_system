@@ -16,9 +16,9 @@ class PostFactory extends Factory
         $title = $this->faker->sentence();
 
         return [
-            'title'      => $title,
-            'slug'       => Str::slug($title) . '-' . $this->faker->unique()->randomNumber(4),
-            'body'       => $this->faker->paragraphs(5, true),
+            'title' => $title,
+            'slug' => Str::slug($title) . '-' . $this->faker->unique()->randomNumber(4),
+            'body' => $this->faker->paragraphs(5, true),
             'view_count' => $this->faker->numberBetween(0, 1000),
         ];
     }

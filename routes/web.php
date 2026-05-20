@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Auth\AuthController;
+use App\Http\Controllers\PostController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -11,7 +12,7 @@ Route::get('/', function () {
 Route::get('/lifecycle-test', function (){
     return response () -> json([
         'php_version' => phpversion(),
-        'timestamp' => now()->toDateTimeString(),
+        'timestamp' => now()->toIso8601String(),
     ]);
 });
 
@@ -25,3 +26,10 @@ Route::middleware('guest')->group(function () {
 });
 
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout')->middleware('auth');
+
+// Post Routes
+Route::resource('posts', PostController::class)->only(['index', 'show']);
+
+Route::middleware('auth')->group(function () {
+    Route::resource('/posts', PostController::class)->except(['index', 'show']);
+});
