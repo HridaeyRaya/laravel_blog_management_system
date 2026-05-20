@@ -51,13 +51,27 @@ class User extends Authenticatable
         return $this->belongsToMany(Permission::class, 'permission_user');
     }
 
-
     public function hasPermission(string $routeName): bool
     {
-        if ($this->permissions()->where('route_name', $routeName)->exists()) {
+        // Check if explicitly excluded first
+        if ($this->permissions()
+            ->where('route_name', $routeName)
+            ->wherePivot('type', 'exclude')
+            ->exists()) {
+            return false; // blocked regardless of role
+        }
+
+        // Check if directly included
+        if ($this->permissions()
+            ->where('route_name', $routeName)
+            ->wherePivot('type', 'include')
+            ->exists()) {
             return true;
         }
 
-        return $this -> roles()->whereHas('permissions', fn ($q) => $q -> where('route_name', $routeName))->exists();
+        // Fall back to role-based permissions
+        return $this->roles()
+            ->whereHas('permissions', fn($q) => $q->where('route_name', $routeName))
+            ->exists();
     }
 }
