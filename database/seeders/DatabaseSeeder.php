@@ -20,7 +20,9 @@ class DatabaseSeeder extends Seeder
             $user->roles()->attach($adminRole);
             $user->posts()->createMany(
                 \Database\Factories\PostFactory::new()->count(rand(2, 5))->make()->toArray()
-            );
+            )->each(function ($post) {
+                $post->status()->create(['value' => 'published']); // ← add status
+            });
         });
 
         // Create 10 regular users
@@ -28,7 +30,9 @@ class DatabaseSeeder extends Seeder
             $user->roles()->attach($userRole);
             $user->posts()->createMany(
                 \Database\Factories\PostFactory::new()->count(rand(2, 5))->make()->toArray()
-            );
+            )->each(function ($post) {
+                $post->status()->create(['value' => 'published']); // ← add status
+            });
         });
     }
 }

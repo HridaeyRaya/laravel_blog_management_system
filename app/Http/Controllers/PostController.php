@@ -4,7 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Category;
 use App\Models\Post;
-use Illuminate\Http\Request;
+use App\Http\Requests\StorePostRequest;
+use App\Http\Requests\UpdatePostRequest;
 
 class PostController extends Controller
 {
@@ -14,7 +15,8 @@ class PostController extends Controller
     public function index()
     {
         $posts = Post::with('user')->whereHas('status', fn($q) => $q->where('value','published'))->latest()->paginate(8);
-        return view('posts.index', compact('posts'));
+//        return view('posts.index', compact('posts'));
+          return response()->json($posts); // temporary
     }
 
     /**
@@ -23,17 +25,28 @@ class PostController extends Controller
     public function create()
     {
         $categories = Category::all();
-        return view('posts.create', compact('categories'));
+//        return view('posts.create', compact('categories'));
+          return response()->json(['categories' => $categories]); // temporary
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StorePostRequest $request)
     {
-        //
-    }
+        $validated = $request->validated();
 
+        $post = $request->user()->posts()->create([
+            'title' => $validated['title'],
+            'body'  => $validated['body'],
+            'slug'  => $validated['slug'],
+        ]);
+
+        $post->categories()->attach($validated['category_ids']);
+        $post->status()->create(['value' => $validated['status']]);
+
+        return redirect()->route('posts.show', $post)->with('success', 'Post created successfully!');
+    }
     /**
      * Display the specified resource.
      */
@@ -46,7 +59,8 @@ class PostController extends Controller
 
         $post->increment('view_count');
 
-        return view('posts.show', compact('post'));
+//        return view('posts.show', compact('post'));
+          return response()->json($post); // temporary
     }
 
     /**
@@ -57,17 +71,40 @@ class PostController extends Controller
         $post = Post::with(['status', 'categories'])->where('slug', $slug)->firstOrFail();
         $this->authorize('update', $post);
         $categories = Category::all();
-        return view('posts.edit', compact('post', 'categories'));
+//        return view('posts.edit', compact('post', 'categories'));
+          return response()->json(['post' => $post, 'categories' => $categories]); // temporary
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $slug)
+    public function update(UpdatePostRequest $request, string $slug)
     {
-        //
-    }
+        $post = Post::where('slug', $slug)->firstOrFail();
 
+        $validated = $request->validated(); // ← missing this line
+
+        $post->update([
+            'title' => $validated['title'] ?? $post->title,
+            'body'  => $validated['body'] ?? $post->body,
+            'slug'  => $validated['slug'] ?? $post->slug,
+        ]);
+
+        // ← remove the duplicate $post->update($validated)
+
+        if (isset($validated['category_ids'])) {
+            $post->categories()->sync($validated['category_ids']);
+        }
+
+        if (isset($validated['status'])) {
+            $post->status()->updateOrCreate(
+                ['statusable_id' => $post->id, 'statusable_type' => Post::class],
+                ['value' => $validated['status']]
+            );
+        }
+
+        return redirect()->route('posts.show', $post)->with('success', 'Post updated successfully!');
+    }
     /**
      * Remove the specified resource from storage.
      */
@@ -76,7 +113,8 @@ class PostController extends Controller
         $post = Post::where('slug', $slug)->firstOrFail();
         $this->authorize('delete', $post);
         $post->delete();
-        return redirect()->route('posts.index')->with('success', 'Post deleted successfully!');
+//        return redirect()->route('posts.index')->with('success', 'Post deleted successfully!');
+          return response()->json(['message' => 'Post deleted successfully!']); // temporary
     }
 }
 
