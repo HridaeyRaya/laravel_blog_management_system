@@ -90,8 +90,6 @@ class PostController extends Controller
             'slug'  => $validated['slug'] ?? $post->slug,
         ]);
 
-        // ← remove the duplicate $post->update($validated)
-
         if (isset($validated['category_ids'])) {
             $post->categories()->sync($validated['category_ids']);
         }

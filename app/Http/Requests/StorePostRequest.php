@@ -18,8 +18,8 @@ class StorePostRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'title' => ['required', 'min:3'],
-            'description' => ['required', 'min:3'],
+            'title' => ['required', 'string','min:5'],
+            'body' => ['required','string', 'min:100'],
             'slug' => ['required', 'unique:posts,slug', 'regex:/^[a-z0-9]+$/'],
             'category_ids' => ['required', 'array'],
             'category_ids.*' => ['exists:categories,id'],

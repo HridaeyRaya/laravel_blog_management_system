@@ -9,8 +9,8 @@ Route::get('/', function () {
 });
 
 // Task 1.4
-Route::get('/lifecycle-test', function (){
-    return response () -> json([
+Route::get('/lifecycle-test', function () {
+    return response()->json([
         'php_version' => phpversion(),
         'timestamp' => now()->toIso8601String(),
     ]);
