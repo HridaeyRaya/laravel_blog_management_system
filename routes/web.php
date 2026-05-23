@@ -5,8 +5,9 @@ use App\Http\Controllers\PostController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
-    return view('welcome');
+    return redirect()->route('posts.index');
 });
+
 
 // Task 1.4
 Route::get('/lifecycle-test', function () {
@@ -28,8 +29,10 @@ Route::middleware('guest')->group(function () {
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout')->middleware('auth');
 
 // Post Routes
-Route::resource('posts', PostController::class)->only(['index', 'show']);
 
 Route::middleware('auth')->group(function () {
-    Route::resource('/posts', PostController::class)->except(['index', 'show']);
+    Route::resource('posts', PostController::class)->except(['index', 'show']);
 });
+
+Route::resource('posts', PostController::class)->only(['index', 'show']);
+

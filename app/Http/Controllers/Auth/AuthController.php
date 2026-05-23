@@ -33,7 +33,7 @@ class AuthController extends Controller
 
         Auth::login($user);
 
-        return redirect()->route('dashboard')->with('success', 'Welcome!');
+        return redirect()->route('posts.index')->with('success', 'Welcome!');
     }
 
     // Show login form
@@ -52,7 +52,7 @@ class AuthController extends Controller
 
         if (Auth::attempt($request->only('email', 'password'), $request->boolean('remember'))) {
             $request->session()->regenerate();
-            return redirect()->intended(route('dashboard'));
+            return redirect()->intended(route('posts.index'));
         }
 
         return back()->withErrors([

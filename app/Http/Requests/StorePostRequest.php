@@ -20,7 +20,7 @@ class StorePostRequest extends FormRequest
         return [
             'title' => ['required', 'string','min:5'],
             'body' => ['required','string', 'min:100'],
-            'slug' => ['required', 'unique:posts,slug', 'regex:/^[a-z0-9]+$/'],
+            'slug' => ['required', 'unique:posts,slug', 'regex:/^[a-z0-9-]+$/'],
             'category_ids' => ['required', 'array'],
             'category_ids.*' => ['exists:categories,id'],
             'status' => ['required', 'in:draft,published'],

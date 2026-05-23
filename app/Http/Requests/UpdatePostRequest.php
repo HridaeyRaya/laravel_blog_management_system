@@ -13,21 +13,23 @@ class UpdatePostRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        $post = $this->route('post');
+        $slug = $this->route('post');
+        $post = \App\Models\Post::where('slug', $slug)->firstOrFail();
         return auth()->check() && auth()->user()->id === $post->user_id;
     }
 
     public function rules(): array
     {
-        $post = $this->route('post');
+        $slug = $this->route('post');
+        $post = \App\Models\Post::where('slug', $slug)->firstOrFail();
 
         return [
-            'title' => ['sometimes', 'string', 'min:5', 'max:255'],
-            'body' => ['sometimes', 'string', 'min:100'],
-            'slug' => ['sometimes', Rule::unique('posts', 'slug')->ignore($post->id), 'regex:/^[a-z0-9-]+$/'],
-            'category_ids' => ['sometimes', 'array'],
+            'title'          => ['sometimes', 'string', 'min:5', 'max:255'],
+            'body'           => ['sometimes', 'string', 'min:100'],
+            'slug'           => ['sometimes', Rule::unique('posts', 'slug')->ignore($post->id), 'regex:/^[a-z0-9-]+$/'],
+            'category_ids'   => ['sometimes', 'array'],
             'category_ids.*' => ['exists:categories,id'],
-            'status' => ['sometimes', 'in:draft,published'],
+            'status'         => ['sometimes', 'in:draft,published'],
         ];
     }
 

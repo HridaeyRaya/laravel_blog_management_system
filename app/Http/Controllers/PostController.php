@@ -15,8 +15,8 @@ class PostController extends Controller
     public function index()
     {
         $posts = Post::with('user')->whereHas('status', fn($q) => $q->where('value','published'))->latest()->paginate(8);
-//        return view('posts.index', compact('posts'));
-          return response()->json($posts); // temporary
+        return view('posts.index', compact('posts'));
+//          return response()->json($posts); // temporary
     }
 
     /**
@@ -25,8 +25,8 @@ class PostController extends Controller
     public function create()
     {
         $categories = Category::all();
-//        return view('posts.create', compact('categories'));
-          return response()->json(['categories' => $categories]); // temporary
+        return view('posts.create', compact('categories'));
+//          return response()->json(['categories' => $categories]); // temporary
     }
 
     /**
@@ -45,7 +45,7 @@ class PostController extends Controller
         $post->categories()->attach($validated['category_ids']);
         $post->status()->create(['value' => $validated['status']]);
 
-        return redirect()->route('posts.show', $post)->with('success', 'Post created successfully!');
+        return redirect()->route('posts.show', $post->slug)->with('success', 'Post created successfully!');
     }
     /**
      * Display the specified resource.
@@ -59,8 +59,8 @@ class PostController extends Controller
 
         $post->increment('view_count');
 
-//        return view('posts.show', compact('post'));
-          return response()->json($post); // temporary
+        return view('posts.show', compact('post'));
+//          return response()->json($post); // temporary
     }
 
     /**
@@ -69,10 +69,10 @@ class PostController extends Controller
     public function edit(string $slug)
     {
         $post = Post::with(['status', 'categories'])->where('slug', $slug)->firstOrFail();
-        $this->authorize('update', $post);
+//        $this->authorize('update', $post);
         $categories = Category::all();
-//        return view('posts.edit', compact('post', 'categories'));
-          return response()->json(['post' => $post, 'categories' => $categories]); // temporary
+        return view('posts.edit', compact('post', 'categories'));
+//          return response()->json(['post' => $post, 'categories' => $categories]); // temporary
     }
 
     /**
@@ -101,7 +101,7 @@ class PostController extends Controller
             );
         }
 
-        return redirect()->route('posts.show', $post)->with('success', 'Post updated successfully!');
+        return redirect()->route('posts.show', $post->slug)->with('success', 'Post updated successfully!');
     }
     /**
      * Remove the specified resource from storage.
@@ -109,10 +109,10 @@ class PostController extends Controller
     public function destroy(string $slug)
     {
         $post = Post::where('slug', $slug)->firstOrFail();
-        $this->authorize('delete', $post);
+//        $this->authorize('delete', $post);
         $post->delete();
-//        return redirect()->route('posts.index')->with('success', 'Post deleted successfully!');
-          return response()->json(['message' => 'Post deleted successfully!']); // temporary
+        return redirect()->route('posts.index')->with('success', 'Post deleted successfully!');
+//          return response()->json(['message' => 'Post deleted successfully!']); // temporary
     }
 }
 
