@@ -27,7 +27,7 @@
                 <input type="text" name="slug" id="slug"
                        value="{{ old('slug') }}"
                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 @error('slug') border-red-500 @enderror"
-                       required>
+                       >
                 <p class="mt-1 text-sm text-gray-500">URL-friendly version of the title (e.g., my-first-post)</p>
                 @error('slug')
                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>

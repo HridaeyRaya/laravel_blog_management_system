@@ -8,15 +8,18 @@ Route::get('/', function () {
     return redirect()->route('posts.index');
 });
 
-
 // Task 1.4
 Route::get('/lifecycle-test', function () {
     return response()->json([
         'php_version' => phpversion(),
-        'timestamp' => now()->toIso8601String(),
+        'timestamp'   => now()->toIso8601String(),
     ]);
 });
 
+// Suspended route
+Route::get('/suspended', function () {
+    return view('suspended');
+})->name('suspended');
 
 // Auth Routes
 Route::middleware('guest')->group(function () {
@@ -29,10 +32,8 @@ Route::middleware('guest')->group(function () {
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout')->middleware('auth');
 
 // Post Routes
-
-Route::middleware('auth')->group(function () {
-    Route::resource('posts', PostController::class)->except(['index', 'show']);
-});
-
 Route::resource('posts', PostController::class)->only(['index', 'show']);
 
+Route::middleware(['auth', 'active'])->group(function () {
+    Route::resource('posts', PostController::class)->except(['index', 'show']);
+});

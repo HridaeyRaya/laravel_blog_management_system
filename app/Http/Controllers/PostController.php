@@ -6,6 +6,7 @@ use App\Models\Category;
 use App\Models\Post;
 use App\Http\Requests\StorePostRequest;
 use App\Http\Requests\UpdatePostRequest;
+use Illuminate\Support\Str;
 
 class PostController extends Controller
 {
@@ -36,10 +37,15 @@ class PostController extends Controller
     {
         $validated = $request->validated();
 
+        // Auto-generate slug if empty
+        $slug = !empty($validated['slug'])
+            ? $validated['slug']
+            : Str::slug($validated['title']);
+
         $post = $request->user()->posts()->create([
             'title' => $validated['title'],
             'body'  => $validated['body'],
-            'slug'  => $validated['slug'],
+            'slug'  => $slug
         ]);
 
         $post->categories()->attach($validated['category_ids']);
@@ -82,7 +88,7 @@ class PostController extends Controller
     {
         $post = Post::where('slug', $slug)->firstOrFail();
 
-        $validated = $request->validated(); // ← missing this line
+        $validated = $request->validated();
 
         $post->update([
             'title' => $validated['title'] ?? $post->title,

@@ -36,13 +36,13 @@
                     @enderror
                 </div>
 
-                <!-- Remember Me -->
-                <div class="mb-6 flex items-center justify-between">
-                    <label class="flex items-center">
-                        <input type="checkbox" name="remember" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
-                        <span class="ml-2 text-sm text-gray-600">Remember me</span>
-                    </label>
-                </div>
+{{--                <!-- Remember Me -->--}}
+{{--                <div class="mb-6 flex items-center justify-between">--}}
+{{--                    <label class="flex items-center">--}}
+{{--                        <input type="checkbox" name="remember" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">--}}
+{{--                        <span class="ml-2 text-sm text-gray-600">Remember me</span>--}}
+{{--                    </label>--}}
+{{--                </div>--}}
 
                 <!-- Submit Button -->
                 <button type="submit" class="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition font-medium">
