@@ -10,11 +10,9 @@
         .flash-message {
             transition: opacity 0.5s ease;
         }
-
         .rotate-180 {
             transform: rotate(180deg);
         }
-
         #dropdown-menu {
             transition: all 0.2s ease;
         }
@@ -34,6 +32,14 @@
 
             <div class="flex items-center space-x-4">
                 @auth
+                    {{-- Admin only --}}
+                    @if(auth()->user()->roles()->where('name', \App\Enum\RoleName::Admin->value)->exists())
+                        <a href="{{ route('admin.permissions') }}"
+                           class="text-gray-700 hover:text-gray-900 px-3 py-2 text-sm font-medium border border-gray-300 rounded-lg hover:bg-gray-100 transition">
+                            Manage Permissions
+                        </a>
+                    @endif
+
                     <a href="{{ route('posts.create') }}"
                        class="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition">
                         Write Post
@@ -109,7 +115,6 @@
         icon.classList.toggle('rotate-180');
     }
 
-    // Close dropdown when clicking outside
     document.addEventListener('click', function(event) {
         const menu = document.getElementById('dropdown-menu');
         const button = event.target.closest('button');
@@ -122,7 +127,6 @@
         }
     });
 
-    // Auto-hide flash messages after 5 seconds
     setTimeout(function() {
         let flashMessages = document.querySelectorAll('.flash-message');
         flashMessages.forEach(function(message) {

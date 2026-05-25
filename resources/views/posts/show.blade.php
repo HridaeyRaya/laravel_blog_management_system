@@ -44,26 +44,26 @@
                 </div>
 
                 <!-- Edit/Delete Buttons -->
-                @auth
-                    @if(auth()->id() === $post->user_id)
-                        <div class="flex gap-2">
-                            <a href="{{ route('posts.edit', $post->slug) }}"
-                               class="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition">
-                                Edit
-                            </a>
+                <div class="flex gap-2">
+                    @can('update', $post)
+                        <a href="{{ route('posts.edit', $post->slug) }}"
+                           class="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition">
+                            Edit
+                        </a>
+                    @endcan
 
-                            <form method="POST" action="{{ route('posts.destroy', $post->slug) }}" class="inline">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit"
-                                        class="inline-flex items-center px-4 py-2 bg-red-600 text-white text-sm font-medium rounded-lg hover:bg-red-700 transition"
-                                        onclick="return confirm('Are you sure you want to delete this post?')">
-                                    Delete
-                                </button>
-                            </form>
-                        </div>
-                    @endif
-                @endauth
+                    @can('delete', $post)
+                        <form method="POST" action="{{ route('posts.destroy', $post->slug) }}" class="inline">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit"
+                                    class="inline-flex items-center px-4 py-2 bg-red-600 text-white text-sm font-medium rounded-lg hover:bg-red-700 transition"
+                                    onclick="return confirm('Are you sure you want to delete this post?')">
+                                Delete
+                            </button>
+                        </form>
+                    @endcan
+                </div>
             </div>
         </div>
 

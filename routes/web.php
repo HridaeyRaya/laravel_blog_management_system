@@ -3,6 +3,7 @@
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\PostController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Admin\PermissionController;
 
 Route::get('/', function () {
     return redirect()->route('posts.index');
@@ -12,7 +13,7 @@ Route::get('/', function () {
 Route::get('/lifecycle-test', function () {
     return response()->json([
         'php_version' => phpversion(),
-        'timestamp'   => now()->toIso8601String(),
+        'timestamp' => now()->toIso8601String(),
     ]);
 });
 
@@ -31,9 +32,17 @@ Route::middleware('guest')->group(function () {
 
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout')->middleware('auth');
 
-// Post Routes
-Route::resource('posts', PostController::class)->only(['index', 'show']);
+//Admin Routes
 
 Route::middleware(['auth', 'active'])->group(function () {
+    Route::get('/admin/permissions', [PermissionController::class, 'index'])->name('admin.permissions');
+    Route::put('/admin/permissions/{role}', [PermissionController::class, 'update'])->name('admin.permissions.update');
+});
+
+// Post Routes
+
+Route::middleware(['auth', 'active', 'permission'])->group(function () {
     Route::resource('posts', PostController::class)->except(['index', 'show']);
 });
+
+Route::resource('posts', PostController::class)->only(['index', 'show']);
