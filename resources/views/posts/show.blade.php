@@ -93,13 +93,13 @@
         <h3 class="text-2xl font-bold text-gray-900 mb-6">Comments ({{ $post->comments->count() }})</h3>
 
         @auth
-            <form method="POST" action="#" class="mb-8">
+            <form method="POST" action="{{ route('comments.store', $post->slug) }}" class="mb-8">
                 @csrf
                 <div class="mb-4">
                     <label for="body" class="block text-sm font-medium text-gray-700 mb-2">Add a comment</label>
                     <textarea name="body" id="body" rows="3"
                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
-                              placeholder="Write your comment here..."></textarea>
+                              placeholder="Write your comment here...">{{ old('body') }}</textarea>
                     @error('body')
                     <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                     @enderror
@@ -129,7 +129,24 @@
                             </div>
                             <span class="font-medium text-gray-900">{{ $comment->user->name }}</span>
                         </div>
-                        <span class="text-sm text-gray-500">{{ $comment->created_at->format('M d, Y') }}</span>
+                        <div class="flex items-center gap-3">
+                            <span class="text-sm text-gray-500">{{ $comment->created_at->format('M d, Y') }}</span>
+
+                            {{-- Delete button for own comments --}}
+                            @auth
+                                @if(auth()->id() === $comment->user_id)
+                                    <form action="{{ route('comments.destroy', [$post->slug, $comment->id]) }}" method="POST">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit"
+                                                class="text-sm text-red-500 hover:text-red-700 transition"
+                                                onclick="return confirm('Delete this comment?')">
+                                            Delete
+                                        </button>
+                                    </form>
+                                @endif
+                            @endauth
+                        </div>
                     </div>
                     <p class="text-gray-700 ml-10">{{ $comment->body }}</p>
                 </div>

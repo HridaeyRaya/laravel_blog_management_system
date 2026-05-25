@@ -4,6 +4,7 @@ use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\PostController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\PermissionController;
+use App\Http\Controllers\CommentController;
 
 Route::get('/', function () {
     return redirect()->route('posts.index');
@@ -46,3 +47,9 @@ Route::middleware(['auth', 'active', 'permission'])->group(function () {
 });
 
 Route::resource('posts', PostController::class)->only(['index', 'show']);
+
+// Comment Routes
+Route::middleware('auth')->group(function () {
+    Route::post('/posts/{post}/comments', [CommentController::class, 'store'])->name('comments.store');
+    Route::delete('/posts/{post}/comments/{comment}', [CommentController::class, 'destroy'])->name('comments.destroy');
+});
