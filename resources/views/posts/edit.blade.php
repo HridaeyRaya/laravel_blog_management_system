@@ -3,12 +3,11 @@
 @section('title', 'Edit: ' . $post->title)
 
 @section('content')
-    <div class="max-w-4xl mx-auto">
-
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {{-- Header --}}
         <div class="mb-8">
             <a href="{{ route('posts.show', $post->slug) }}"
-               class="inline-flex items-center space-x-2 text-emerald-600 hover:text-emerald-700 text-sm font-medium transition mb-4">
+               class="inline-flex items-center gap-2 text-emerald-600 hover:text-emerald-700 text-sm font-medium transition mb-4">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
                 </svg>
@@ -79,15 +78,17 @@
 
                     {{-- Status + Categories Row --}}
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-                        {{-- Status --}}
-                        <div>
-                            <label for="status" class="block text-sm font-semibold text-gray-700 mb-2">Status</label>
-                            <select name="status" id="status"
-                                    class="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition">
-                                <option value="draft" {{ old('status', $post->status->value ?? 'draft') == 'draft' ? 'selected' : '' }}>📝 Draft</option>
-                                <option value="published" {{ old('status', $post->status->value ?? 'draft') == 'published' ? 'selected' : '' }}>🌍 Published</option>
-                            </select>
-                        </div>
+                        {{-- Status - Admin only --}}
+                        @if(auth()->user()->roles->contains('name', 'admin'))
+                            <div>
+                                <label for="status" class="block text-sm font-semibold text-gray-700 mb-2">Status</label>
+                                <select name="status" id="status"
+                                        class="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition">
+                                    <option value="draft" {{ old('status', $post->status->value ?? 'draft') == 'draft' ? 'selected' : '' }}>📝 Draft</option>
+                                    <option value="published" {{ old('status', $post->status->value ?? 'draft') == 'published' ? 'selected' : '' }}>🌍 Published</option>
+                                </select>
+                            </div>
+                        @endif
 
                         {{-- Categories --}}
                         <div>
@@ -95,23 +96,23 @@
                             <div class="border border-gray-200 rounded-xl p-3 max-h-36 overflow-y-auto space-y-2">
                                 @foreach($categories as $category)
                                     @php $postCategoryIds = $post->categories->pluck('id')->toArray(); @endphp
-                                    <label class="flex items-center space-x-2 cursor-pointer group">
+                                    <label class="flex items-center gap-2 cursor-pointer group">
                                         <input type="checkbox"
                                                name="category_ids[]"
                                                value="{{ $category->id }}"
                                                {{ in_array($category->id, old('category_ids', $postCategoryIds)) ? 'checked' : '' }}
                                                class="rounded border-gray-300 text-emerald-600 focus:ring-emerald-500">
                                         <span class="text-sm text-gray-600 group-hover:text-emerald-600 transition">
-                                            {{ $category->name }}
-                                        </span>
+                                        {{ $category->name }}
+                                    </span>
                                     </label>
                                 @endforeach
                             </div>
                         </div>
                     </div>
 
-                    {{-- Submit --}}
-                    <div class="flex items-center justify-end space-x-3 pt-4 border-t border-gray-100">
+                    {{-- Submit Buttons --}}
+                    <div class="flex items-center justify-end gap-3 pt-4 border-t border-gray-100">
                         <a href="{{ route('posts.show', $post->slug) }}"
                            class="px-6 py-2.5 text-sm font-medium text-gray-600 bg-gray-100 rounded-xl hover:bg-gray-200 transition">
                             Cancel

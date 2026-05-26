@@ -13,9 +13,14 @@ class PostController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Post::with('user')
-            ->whereHas('status', fn($q) => $q->where('value', 'published'));
+        $query = Post::with('user');
 
+        // Admin sees all posts, others see only published
+        if (!auth()->check() || !auth()->user()->roles->contains('name', 'admin')) {
+            $query->whereHas('status', fn($q) => $q->where('value', 'published'));
+        }
+
+        // Search
         if ($request->filled('search')) {
             $query->where(function ($q) use ($request) {
                 $q->where('title', 'LIKE', '%' . $request->search . '%')
@@ -30,8 +35,6 @@ class PostController extends Controller
         }
 
         $posts = $query->latest()->paginate(8)->withQueryString();
-
-        // Get all categories for filter buttons
         $categories = Category::all();
 
         return view('posts.index', compact('posts', 'categories'));
@@ -47,9 +50,18 @@ class PostController extends Controller
     {
         $validated = $request->validated();
 
+        // Auto-generate slug from title if empty
         $slug = !empty($validated['slug'])
             ? $validated['slug']
             : Str::slug($validated['title']);
+
+        // Make slug unique if already taken
+        $originalSlug = $slug;
+        $count = 1;
+        while (Post::where('slug', $slug)->exists()) {
+            $slug = $originalSlug . '-' . $count;
+            $count++;
+        }
 
         $post = $request->user()->posts()->create([
             'title' => $validated['title'],
@@ -58,18 +70,21 @@ class PostController extends Controller
         ]);
 
         $post->categories()->attach($validated['category_ids']);
-        $post->status()->create(['value' => $validated['status']]);
+        $post->status()->create(['value' => 'draft']);
 
-        return redirect()->route('posts.show', $post->slug)->with('success', 'Post created successfully!');
+        return redirect()->route('posts.index')->with('success', 'Post submitted for review!');
     }
-
     public function show(string $slug)
     {
-        $post = Post::with(['user', 'comments.user', 'categories', 'status'])
-            ->whereHas('status', fn($q) => $q->where('value', 'published'))
-            ->where('slug', $slug)
-            ->firstOrFail();
+        $query = Post::with(['user', 'comments.user', 'categories', 'status'])
+            ->where('slug', $slug);
 
+        // guests and regular users only see published
+        if (!auth()->check() || !auth()->user()->roles->contains('name', 'admin')) {
+            $query->whereHas('status', fn($q) => $q->where('value', 'published'));
+        }
+
+        $post = $query->firstOrFail();
         $post->increment('view_count');
 
         return view('posts.show', compact('post'));
@@ -106,6 +121,19 @@ class PostController extends Controller
         }
 
         return redirect()->route('posts.show', $post->slug)->with('success', 'Post updated successfully!');
+    }
+
+    public function publish(string $slug)
+    {
+        $post = Post::where('slug', $slug)->firstOrFail();
+        $this->authorize('publish', $post);
+
+        $post->status()->updateOrCreate(
+            ['statusable_id' => $post->id, 'statusable_type' => Post::class],
+            ['value' => 'published']
+        );
+
+        return redirect()->route('posts.show', $post->slug)->with('success', 'Post published successfully!');
     }
 
     public function destroy(string $slug)

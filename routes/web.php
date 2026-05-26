@@ -42,6 +42,7 @@ Route::middleware(['auth', 'active'])->group(function () {
 // Post Routes
 Route::middleware(['auth', 'active', 'permission'])->group(function () {
     Route::resource('posts', PostController::class)->except(['index', 'show']);
+    Route::patch('/posts/{post}/publish', [PostController::class, 'publish'])->name('posts.publish');
 });
 
 Route::resource('posts', PostController::class)->only(['index', 'show']);
