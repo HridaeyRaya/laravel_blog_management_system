@@ -14,14 +14,20 @@
                     </svg>
                 </div>
                 <div>
-                    <h1 class="text-2xl font-bold text-gray-900">Manage Permissions</h1>
-                    <p class="text-sm text-gray-500">Control what each role can access</p>
+                    <h1 class="text-2xl font-bold text-gray-900">Manage User Permissions</h1>
+                    <p class="text-sm text-gray-500">Control what user's role can access</p>
                 </div>
             </div>
         </div>
 
         {{-- Role Cards --}}
         @foreach($roles as $role)
+
+            {{-- Skip admin role - admin has full access by design --}}
+            @if(($role->name->value ?? $role->name) === 'admin')
+                @continue
+            @endif
+
             <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden mb-6">
                 <div class="h-1 w-full bg-gradient-to-r from-emerald-400 to-teal-500"></div>
 

@@ -6,17 +6,35 @@ use App\Models\Category;
 use App\Models\Post;
 use App\Http\Requests\StorePostRequest;
 use App\Http\Requests\UpdatePostRequest;
+use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
 class PostController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $posts = Post::with('user')
-            ->whereHas('status', fn($q) => $q->where('value', 'published'))
-            ->latest()
-            ->paginate(8);
-        return view('posts.index', compact('posts'));
+        $query = Post::with('user')
+            ->whereHas('status', fn($q) => $q->where('value', 'published'));
+
+        if ($request->filled('search')) {
+            $query->where(function ($q) use ($request) {
+                $q->where('title', 'LIKE', '%' . $request->search . '%')
+                    ->orWhere('body', 'LIKE', '%' . $request->search . '%')
+                    ->orWhereHas('user', fn($q) => $q->where('name', 'LIKE', '%' . $request->search . '%'));
+            });
+        }
+
+        // Category filter
+        if ($request->filled('category')) {
+            $query->whereHas('categories', fn($q) => $q->where('slug', $request->category));
+        }
+
+        $posts = $query->latest()->paginate(8)->withQueryString();
+
+        // Get all categories for filter buttons
+        $categories = Category::all();
+
+        return view('posts.index', compact('posts', 'categories'));
     }
 
     public function create()
@@ -60,7 +78,7 @@ class PostController extends Controller
     public function edit(string $slug)
     {
         $post = Post::with(['status', 'categories'])->where('slug', $slug)->firstOrFail();
-         $this->authorize('update', $post);
+        $this->authorize('update', $post);
         $categories = Category::all();
         return view('posts.edit', compact('post', 'categories'));
     }

@@ -4,3 +4,5 @@ Admin check in tinker: User::whereHas('roles', fn($q) => $q->where('name', 'admi
 ryan26@example.com
 
 User check in tinker: User::whereHas('roles', fn($q) => $q->where('name', 'user'))->first()
+
+
