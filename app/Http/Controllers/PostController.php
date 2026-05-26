@@ -60,7 +60,7 @@ class PostController extends Controller
     public function edit(string $slug)
     {
         $post = Post::with(['status', 'categories'])->where('slug', $slug)->firstOrFail();
-        // $this->authorize('update', $post); // uncomment in Task 7
+         $this->authorize('update', $post);
         $categories = Category::all();
         return view('posts.edit', compact('post', 'categories'));
     }
@@ -100,6 +100,6 @@ class PostController extends Controller
         $post->comments()->delete();
         $post->delete();
 
-        return response()->json(null, 204);
+        return redirect()->route('posts.index')->with('success', 'Post deleted successfully!');
     }
 }

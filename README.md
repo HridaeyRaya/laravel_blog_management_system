@@ -1,9 +1,6 @@
-Admin check in tinker: User::whereHas('roles', fn($q) => $q->where('name', 'admin'))->first()
+// Notes and CMDS
 
-Email: fratke@example.com
-Pass: password
+Admin check in tinker: User::whereHas('roles', fn($q) => $q->where('name', 'admin'))->first()
+ryan26@example.com
 
 User check in tinker: User::whereHas('roles', fn($q) => $q->where('name', 'user'))->first()
-
-email: kaela83@example.org
-pass: password
