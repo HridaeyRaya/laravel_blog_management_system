@@ -41,11 +41,11 @@ class UpdatePostRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'title.min'      => 'Title must be at least 5 characters long.',
-            'body.min'       => 'Post body must be at least 100 characters long.',
-            'slug.regex'     => 'Slug may only contain lowercase letters, numbers, and hyphens.',
-            'slug.unique'    => 'This slug is already taken, please choose another.',
-            'status.in'      => 'Status must be either draft or published.',
+            'title.min' => 'Title must be at least 5 characters long.',
+            'body.min' => 'Post body must be at least 100 characters long.',
+            'slug.regex' => 'Slug may only contain lowercase letters, numbers, and hyphens.',
+            'slug.unique' => 'This slug is already taken, please choose another.',
+            'status.in' => 'Status must be either draft or published.',
             'category_ids.array' => 'Categories must be a valid selection.',
         ];
     }

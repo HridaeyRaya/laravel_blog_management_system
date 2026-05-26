@@ -1,68 +1,60 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Api;
 
-use App\Models\Category;
-use App\Models\Post;
+use App\Http\Controllers\Controller;
 use App\Http\Requests\StorePostRequest;
 use App\Http\Requests\UpdatePostRequest;
-use Illuminate\Support\Str;
+use App\Http\Resources\PostCollection;
+use App\Http\Resources\PostResource;
+use App\Models\Post;
+use Illuminate\Http\Request;
 
 class PostController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $posts = Post::with('user')
-            ->whereHas('status', fn($q) => $q->where('value', 'published'))
-            ->latest()
-            ->paginate(8);
-        return view('posts.index', compact('posts'));
-    }
+        $query = Post::with(['user', 'status', 'categories', 'comments']);
 
-    public function create()
-    {
-        $categories = Category::all();
-        return view('posts.create', compact('categories'));
+        if (!$request->user()) {
+            $query->whereHas('status', fn($q) => $q->where('value', 'published'));
+        } elseif (!$request->user()->roles->contains('name', 'admin')) {
+            $query->where(function ($q) use ($request) {
+                $q->whereHas('status', fn($q) => $q->where('value', 'published'))
+                    ->orWhere('user_id', $request->user()->id);
+            });
+        }
+
+        $posts = $query->latest()->paginate(15);
+
+        return new PostCollection($posts);
     }
 
     public function store(StorePostRequest $request)
     {
         $validated = $request->validated();
 
-        $slug = !empty($validated['slug'])
-            ? $validated['slug']
-            : Str::slug($validated['title']);
-
         $post = $request->user()->posts()->create([
             'title' => $validated['title'],
             'body'  => $validated['body'],
-            'slug'  => $slug,
+            'slug'  => $validated['slug'],
         ]);
 
         $post->categories()->attach($validated['category_ids']);
         $post->status()->create(['value' => $validated['status']]);
 
-        return redirect()->route('posts.show', $post->slug)->with('success', 'Post created successfully!');
+        return (new PostResource($post->load(['user', 'status', 'categories', 'comments'])))
+            ->response()
+            ->setStatusCode(201);
     }
 
     public function show(string $slug)
     {
-        $post = Post::with(['user', 'comments.user', 'categories', 'status'])
-            ->whereHas('status', fn($q) => $q->where('value', 'published'))
+        $post = Post::with(['user', 'status', 'categories', 'comments'])
             ->where('slug', $slug)
             ->firstOrFail();
 
-        $post->increment('view_count');
-
-        return view('posts.show', compact('post'));
-    }
-
-    public function edit(string $slug)
-    {
-        $post = Post::with(['status', 'categories'])->where('slug', $slug)->firstOrFail();
-        // $this->authorize('update', $post); // uncomment in Task 7
-        $categories = Category::all();
-        return view('posts.edit', compact('post', 'categories'));
+        return new PostResource($post);
     }
 
     public function update(UpdatePostRequest $request, string $slug)
@@ -87,7 +79,9 @@ class PostController extends Controller
             );
         }
 
-        return redirect()->route('posts.show', $post->slug)->with('success', 'Post updated successfully!');
+        return (new PostResource($post->load(['user', 'status', 'categories', 'comments'])))
+            ->response()
+            ->setStatusCode(200);
     }
 
     public function destroy(string $slug)

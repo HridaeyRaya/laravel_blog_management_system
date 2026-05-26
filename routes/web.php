@@ -34,14 +34,12 @@ Route::middleware('guest')->group(function () {
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout')->middleware('auth');
 
 //Admin Routes
-
 Route::middleware(['auth', 'active'])->group(function () {
     Route::get('/admin/permissions', [PermissionController::class, 'index'])->name('admin.permissions');
     Route::put('/admin/permissions/{role}', [PermissionController::class, 'update'])->name('admin.permissions.update');
 });
 
 // Post Routes
-
 Route::middleware(['auth', 'active', 'permission'])->group(function () {
     Route::resource('posts', PostController::class)->except(['index', 'show']);
 });
@@ -53,3 +51,4 @@ Route::middleware('auth')->group(function () {
     Route::post('/posts/{post}/comments', [CommentController::class, 'store'])->name('comments.store');
     Route::delete('/posts/{post}/comments/{comment}', [CommentController::class, 'destroy'])->name('comments.destroy');
 });
+
