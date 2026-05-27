@@ -49,7 +49,9 @@
                                        class="w-full pl-11 pr-4 py-3 border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition @error('email') border-red-300 bg-red-50 @else border-gray-200 @enderror">
                             </div>
                             @error('email')
-                            <p class="mt-1.5 text-xs text-red-600">{{ $message }}</p>
+                            @if($message !== 'Your account has been suspended. Please contact support.')
+                                <p class="mt-1.5 text-xs text-red-600">{{ $message }}</p>
+                            @endif
                             @enderror
                         </div>
 

@@ -5,6 +5,7 @@ use App\Http\Controllers\PostController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\PermissionController;
 use App\Http\Controllers\CommentController;
+use App\Http\Controllers\Admin\UserController;
 
 Route::get('/', function () {
     return redirect()->route('posts.index');
@@ -34,9 +35,13 @@ Route::middleware('guest')->group(function () {
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout')->middleware('auth');
 
 //Admin Routes
-Route::middleware(['auth', 'active'])->group(function () {
+Route::middleware(['auth', 'active'])->prefix('admin')->group(function () {
     Route::get('/admin/permissions', [PermissionController::class, 'index'])->name('admin.permissions');
     Route::put('/admin/permissions/{role}', [PermissionController::class, 'update'])->name('admin.permissions.update');
+
+    // New user management routes
+    Route::get('/users', [UserController::class, 'index'])->name('admin.users.index');
+    Route::patch('/users/{user}/toggle', [UserController::class, 'toggleSuspend'])->name('admin.users.toggle');
 });
 
 // Post Routes

@@ -34,8 +34,14 @@
             {{-- Nav Actions --}}
             <div class="flex items-center space-x-3">
                 @auth
-                    {{-- Admin Link --}}
+                    {{-- Admin Links --}}
                     @if(auth()->user()->roles()->where('name', \App\Enum\RoleName::Admin->value)->exists())
+                        {{-- Users Management Link --}}
+                        <a href="{{ route('admin.users.index') }}"
+                           class="hidden sm:inline-flex items-center px-3 py-1.5 text-xs font-medium text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-lg hover:bg-emerald-100 transition">
+                            👥 Users
+                        </a>
+
                         <a href="{{ route('admin.permissions') }}"
                            class="hidden sm:inline-flex items-center px-3 py-1.5 text-xs font-medium text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-lg hover:bg-emerald-100 transition">
                             ⚙ Permissions
